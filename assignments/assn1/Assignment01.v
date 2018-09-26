@@ -243,11 +243,27 @@ Check negation_fn_applied_twice :
   forall (b : bool), f (f b) = b.
 
 (*=========== 3141592 ===========*)
+Theorem plus_n_O : forall n : nat, n = n + 0.
+Proof.
+  intros n. induction n as [| n' IHn'].
+  - reflexivity.
+  - simpl. rewrite <- IHn'. reflexivity.
+Qed.
+
+Theorem plus_n_Sm : forall n m : nat,
+  S (n + m) = n + (S m).
+Proof.
+  intros n m. induction n.
+  - reflexivity.
+  - simpl. rewrite <- IHn. reflexivity.
+Qed.
 
 Theorem plus_comm : forall n m : nat,
   n + m = m + n.
 Proof. 
-  exact FILL_IN_HERE.
+  intros. induction n.
+  - simpl. rewrite <- plus_n_O. reflexivity.
+  - simpl. rewrite IHn. rewrite plus_n_Sm. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -283,10 +299,9 @@ Check plus_assoc : forall n m p : nat,
 
 Lemma double_plus : forall n, double n = n + n .
 Proof.
-  intros. induction n as [| n' IHn].
+  intros. induction n.
   - reflexivity.
-  - simpl.
-  
+  - simpl. rewrite IHn. rewrite plus_n_Sm. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -296,11 +311,20 @@ Check double_plus : forall n, double n = n + n .
 (*=========== 3141592 ===========*)
 
 (** **** Problem : 3 stars (mult_comm) *)
+Theorem plus_without_par : forall n m p : nat,
+  n + (m + p) = n + m + p.
+Proof.
+  intros. induction n.
+  - simpl. reflexivity.
+  - simpl. rewrite IHn. reflexivity.
+Qed.
 
 Theorem mult_plus_distr_r : forall n m p : nat,
   (n + m) * p = (n * p) + (m * p).
 Proof.  
-  exact FILL_IN_HERE.
+  intros. induction n.
+  - simpl. reflexivity.
+  - simpl. rewrite IHn. rewrite plus_without_par. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -314,7 +338,7 @@ Check mult_plus_distr_r : forall n m p : nat,
 Theorem fst_swap_is_snd : forall (p : natprod),
   fst (swap_pair p) = snd p.
 Proof.  
-  exact FILL_IN_HERE.
+  intros. destruct p. simpl. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -338,16 +362,22 @@ Check fst_swap_is_snd : forall (p : natprod),
     defining a new kind of pairs, but this is not the only way.)  *)
 
 Fixpoint alternate (l1 l2 : natlist) : natlist :=
-  FILL_IN_HERE.
+  match l1 with
+  | [] => l2
+  | hd :: rest => match l2 with 
+                  | [] => l1 
+                  | hd' :: rest' => hd :: hd' :: alternate rest rest'
+                  end
+  end.
 
 Example test_alternate1:        alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
-Proof. exact FILL_IN_HERE. Qed.
+Proof. simpl. reflexivity. Qed.
 Example test_alternate2:        alternate [1] [4;5;6] = [1;4;5;6].
-Proof. exact FILL_IN_HERE. Qed.
+Proof. simpl. reflexivity. Qed.
 Example test_alternate3:        alternate [1;2;3] [4] = [1;4;2;3].
-Proof. exact FILL_IN_HERE. Qed.
+Proof. simpl. reflexivity. Qed.
 Example test_alternate4:        alternate [] [20;30] = [20;30].
-Proof. exact FILL_IN_HERE. Qed.
+Proof. simpl. reflexivity. Qed.
 
 (*-- Check --*)
 
@@ -378,15 +408,26 @@ Qed.
 
 (*-- Check --*)
 Check app_nil_end : forall l : natlist, 
-  l ++ [] = l.   
+  l ++ [] = l.
 
 (*=========== 3141592 ===========*)
 
 (** Hint: You may need to first state and prove some lemma about snoc and rev. *)
+
+Theorem snoc_n_rev : forall (l:natlist) (n:nat),
+  rev (snoc l n) = n :: (rev l).
+Proof.
+  intros. induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite IHl. reflexivity. 
+Qed.
+
 Theorem rev_involutive : forall l : natlist,
   rev (rev l) = l.
 Proof.
-  exact FILL_IN_HERE.
+  intros. induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite snoc_n_rev. rewrite IHl. reflexivity. 
 Qed.
 
 (*-- Check --*)
@@ -399,7 +440,9 @@ Check rev_involutive : forall l : natlist,
 Theorem snoc_append : forall (l:natlist) (n:nat),
   snoc l n = l ++ [n].
 Proof.
-  exact FILL_IN_HERE.
+  intros. induction l.
+  - simpl. reflexivity.
+  - simpl. rewrite IHl. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -408,11 +451,24 @@ Check snoc_append : forall (l:natlist) (n:nat),
   snoc l n = l ++ [n].
 
 (*=========== 3141592 ===========*)
+Theorem app_without_par : forall l1 l2 l3 : natlist,
+  (l1 ++ l2) ++ l3 = l1 ++ l2 ++ l3.
+Proof.
+  intros. induction l1.
+  - simpl. reflexivity.
+  - simpl. rewrite IHl1. reflexivity.
+Qed.
 
 Theorem distr_rev : forall l1 l2 : natlist,
   rev (l1 ++ l2) = (rev l2) ++ (rev l1).
 Proof.
-  exact FILL_IN_HERE.
+  intros. induction l1.
+  - simpl. rewrite app_nil_end. reflexivity.
+  - simpl. 
+    rewrite IHl1.
+    rewrite snoc_append. rewrite snoc_append. 
+    rewrite app_without_par.
+    reflexivity.
 Qed.
 
 (*-- Check --*)
