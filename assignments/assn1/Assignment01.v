@@ -14,8 +14,8 @@
 
 Require Import Basics.
 
-Definition FILL_IN_HERE {T: Type} : T.  Admitted.
 
+Definition FILL_IN_HERE {T: Type} : T.  Admitted.
 Fixpoint beq_nat (n m : nat) : bool :=
   match n with
   | O => match m with
@@ -123,12 +123,15 @@ Eval compute in 3 * 5.
 Eval compute in 3+5*6.
 
 Fixpoint factorial (n:nat) : nat := 
-  FILL_IN_HERE.
+  match n with
+  | 0 => 1
+  | S n' => n * factorial n'
+  end.
 
 Example test_factorial1:          (factorial 3) = 6.
-Proof. exact FILL_IN_HERE. Qed.
+Proof. simpl. reflexivity. Qed.
 Example test_factorial2:          (factorial 5) = 10 * 12.
-Proof. exact FILL_IN_HERE. Qed.
+Proof. simpl. reflexivity. Qed.
 
 (*-- Check --*)
 
@@ -146,14 +149,18 @@ Check
     yielding a [b]oolean.  Use [Fixpoint] to define it. *)
 
 Fixpoint blt_nat (n m : nat) : bool :=
-  FILL_IN_HERE.
+  match n with
+  | 0 => (match m with | 0 => false | S n' => true end)
+  | S n' => (match m with | 0 => false | S m' => blt_nat n' m' end)
+end.
+          
 
 Example test_blt_nat1:             (blt_nat 2 2) = false.
-Proof. exact FILL_IN_HERE. Qed.
+Proof. reflexivity. Qed.
 Example test_blt_nat2:             (blt_nat 2 4) = true.
-Proof. exact FILL_IN_HERE. Qed.
+Proof. reflexivity. Qed.
 Example test_blt_nat3:             (blt_nat 4 2) = false.
-Proof. exact FILL_IN_HERE. Qed.
+Proof. reflexivity. Qed.
 
 (*-- Check --*)
 
@@ -173,7 +180,11 @@ Theorem mult_S_1 : forall n m : nat,
   m = S n -> 
   m * (1 + n) = m * m.
 Proof.
-  exact FILL_IN_HERE.
+  intros m n.
+  intros H.
+  simpl.
+  rewrite <- H.
+  reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -191,7 +202,9 @@ Check mult_S_1 : forall n m : nat,
 Theorem zero_nbeq_plus_1 : forall n : nat,
   beq_nat 0 (n + 1) = false.
 Proof.
-  exact FILL_IN_HERE.
+  intros n. destruct n.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -210,7 +223,16 @@ Theorem negation_fn_applied_twice :
   (forall (x : bool), f x = negb x) ->
   forall (b : bool), f (f b) = b.
 Proof.
-  exact FILL_IN_HERE.
+  intros f H b.
+  destruct b.
+  - rewrite -> H.
+    rewrite -> H.
+    simpl.
+    reflexivity.
+  - rewrite -> H.
+    rewrite -> H.
+    simpl.
+    reflexivity.
 Qed.
 
 (*-- Check --*)
@@ -238,7 +260,12 @@ Check plus_comm : forall n m : nat,
 Theorem plus_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
 Proof. 
-  exact FILL_IN_HERE.
+  intros.
+  induction n as [| n' IHn].
+  - simpl. reflexivity.
+  - simpl. rewrite IHn. reflexivity.
+  
+
 Qed.
 
 (*-- Check --*)
@@ -255,8 +282,11 @@ Check plus_assoc : forall n m p : nat,
 (** Use induction to prove this simple fact about [double]: *)
 
 Lemma double_plus : forall n, double n = n + n .
-Proof.  
-  exact FILL_IN_HERE.
+Proof.
+  intros. induction n as [| n' IHn].
+  - reflexivity.
+  - simpl.
+  
 Qed.
 
 (*-- Check --*)
@@ -340,7 +370,10 @@ alternate [] [20;30] = [20;30].
 Theorem app_nil_end : forall l : natlist, 
   l ++ [] = l.   
 Proof.
-  exact FILL_IN_HERE.
+  intros l.
+  induction l.
+  - reflexivity.
+  - simpl. rewrite IHl. reflexivity.
 Qed.  
 
 (*-- Check --*)
